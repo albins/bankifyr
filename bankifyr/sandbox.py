@@ -32,20 +32,6 @@ with open(sys.argv[1], 'r') as csvfile:
             for i, row in enumerate(csv_reader) if row[3] and i
             ]
 
-#labeled_data = [
-#        (("Ica", "2017-01-07", -100), 'food'),
-#        (("restaurant", "2017-01-07", -200), 'meal'),
-#        (("UL", "2017-01-02", -100), 'transport'),
-#        (("SL", "2017-01-09", -110), 'transport'),
-#        (("ul", "2017-01-08", -110), 'transport'),
-#        (("systembolaget", "2017-01-01", -101), 'drinks'),
-#        (("salary", "2017-01-07", 200), 'loan'),
-#        (("rullan", "2017-01-02", -201), 'meal'),
-#        (("SF bio", "2017-01-02", -100), 'entertainment'),
-#        (("ica", "2017-01-03", -200), 'food'),
-#        (("Ica", "2017-01-01", -210), 'food'),
-#]
-
 random.shuffle(labeled_data)
 
 feature_sets = [(generate_features(e), label) for (e, label) in labeled_data]
