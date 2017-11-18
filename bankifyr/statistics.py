@@ -35,7 +35,7 @@ def read_rows(filename, labelled):
         dialect = csv.Sniffer().sniff(csvfile.read(DEFAULT_SNIFF))
         csvfile.seek(0)
         log.info("Detected CSV dialect %s", dialect.__class__.__name__)
-        csv_reader = csv.reader(csvfile, delimiter = "\t"
+        csv_reader = csv.reader(csvfile, delimiter = ";"
         )
         for row in csv_reader:
             if labelled and len(row) != 4:

@@ -23,7 +23,7 @@ def generate_features(entry):
 
 class Classifier:
     def __init__(self, initial_data):
-        self.train_data = initial_data
+        self.train_data = list(initial_data)
         self.classifier = nltk.NaiveBayesClassifier.train(
                 [(generate_features(entry), label) for entry, label in self.train_data])
 
@@ -41,11 +41,8 @@ class Classifier:
             log.debug("Classified an entry with confidence %f", confidence)
             if  confidence < threshold:
                 label = self.ask_for_category(entry, list(pdist.samples()), confidence)
-                self.add_train_data(self, [(entry, label)]
-                classified_data.append((
-                    entry,
-                    label,
-                    ))
+                self.add_train_data([(entry, label)])
+                classified_data.append((entry,label, ))
             else:
                 classified_data.append((entry, guess))
         return classified_data
