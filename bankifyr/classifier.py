@@ -40,9 +40,11 @@ class Classifier:
             confidence = np.var([pdist.prob(sample) for sample in pdist.samples()])
             log.debug("Classified an entry with confidence %f", confidence)
             if  confidence < threshold:
+                label = self.ask_for_category(entry, list(pdist.samples()), confidence)
+                self.add_train_data(self, [(entry, label)]
                 classified_data.append((
                     entry,
-                    self.ask_for_category(entry, list(pdist.samples()), confidence)
+                    label,
                     ))
             else:
                 classified_data.append((entry, guess))
