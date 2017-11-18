@@ -6,6 +6,8 @@ import daiquiri
 # For logging
 log = daiquiri.getLogger()
 
+DEFAULT_ACC_THRESH=0.75
+
 
 def set_log_level_from_args(args, logger):
     log_level = (max(3 - args.verbose_count, 0) * 10)
@@ -22,6 +24,10 @@ def setup_verbosity_flags(parser):
 
 def make_base_parser():
     parser = argparse.ArgumentParser(description="")
+    parser.add_argument('--accuracy-thresh', '-a',
+                        help="prediction accuracy before nagging the user",
+                        default=DEFAULT_ACC_THRESH)
+    parser.add_argument('csv_data', help="boo")
     setup_verbosity_flags(parser)
     return parser
 
