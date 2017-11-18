@@ -38,7 +38,7 @@ class Classifier:
             guess = self.classifier.classify(generate_features(entry))
             pdist = self.classifier.prob_classify(generate_features(entry))
             confidence = np.var([pdist.prob(sample) for sample in pdist.samples()])
-            log.debug("Classified an entry with confidence %d", confidence)
+            log.debug("Classified an entry with confidence %f", confidence)
             if  confidence < threshold:
                 classified_data.append((
                     entry,

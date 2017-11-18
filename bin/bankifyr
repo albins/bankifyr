@@ -43,6 +43,7 @@ if __name__ == '__main__':
     parser = make_base_parser()
     args = parser.parse_args()
     daiquiri.setup()
+    set_log_level_from_args(args, log)
 
     ## Train the classifier beforehand
     if args.training_file:
@@ -62,7 +63,6 @@ if __name__ == '__main__':
     ### Generate report
 
     log.info("Generating graphs...")
-    cat_count = bankifyr.statistics.count_categories(classified_data)
-    bankifyr.statistics.histogram(cat_count)
+    bankifyr.statistics.plot_everything(classified_data)
     for entry in sorted(classified_data, key=lambda s: s[-1]):
         print(entry)
