@@ -103,11 +103,13 @@ def filter_month(rows, month):
     return result
             
 
-if __name__ == '__main__':
-    filename = sys.argv[1]
-    rows = read_rows(filename)
-    splitted = split_months(list(rows))
+def plot_everything(transactions):
+    splitted = split_months(transactions)
 
+    # Plot over each category over the entire timeline
+    histogram(count_categories(transactions), sort=True)
+    plt.savefig("categories.png")
+    
     # Plot amount per category for every month
     for month in splitted.keys():
         histogram(count_categories(filter_month(splitted[month], month)), sort=True)
@@ -121,4 +123,9 @@ if __name__ == '__main__':
 
     histogram(cost_per_month)
     plt.savefig("months.png")
-    
+
+
+if __name__ == '__main__':
+    filename = sys.argv[1]
+    transactions = read_rows(filename)
+    plot_everything(list(transactions))
