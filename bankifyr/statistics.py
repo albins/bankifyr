@@ -45,12 +45,14 @@ def to_number(s):
     return float(s.replace(" ", "").replace(",", "."))
 
 
-def histogram(data, sort=False):
+def histogram(data, sort=None):
     keys = list(data.keys())
     values = [-v for v in data.values()]
         
-    if sort:
+    if sort == "y":
         sorted_values, sorted_keys = zip(*sorted(zip(values, keys)))
+    elif sort == "x":
+        sorted_keys, sorted_values = zip(*sorted(zip(keys, values)))
     else:
         sorted_values, sorted_keys = values, keys
 
@@ -66,7 +68,15 @@ def split_months(rows):
         months[row[1].month].append(row)
 
     return months
-        
+
+def split_weekday(rows):
+    weekdays = defaultdict(list)
+    
+    for row in rows:
+        weekdays[row[1].isoweekday()].append(row)
+
+    return weekdays
+
         
 def month_name(n):
     if n is 1:
@@ -103,25 +113,42 @@ def filter_month(rows, month):
     return result
             
 
-def plot_everything(transactions):
-    splitted = split_months(transactions)
+def filter_weekday(rows, day):
+    result = []
+    for row in rows:
+        if row[1].isoweekday() == day:
+            result.append(row)
+    return result
 
+def plot_everything(transactions):
     # Plot over each category over the entire timeline
-    histogram(count_categories(transactions), sort=True)
+    histogram(count_categories(transactions), sort="y")
     plt.savefig("categories.png")
+
+    # Plot amount of money per weekday
+    splitted_weedays = split_weekday(transactions)
+    cost_per_day = dict.fromkeys(splitted_weedays.keys())
+    
+    for day in cost_per_day.keys():
+        total = sum([x[2] for x in splitted_weedays[day]])
+        cost_per_day[day] = total
+
+    histogram(cost_per_day, sort="x")
+    plt.savefig("weekdays.png")
     
     # Plot amount per category for every month
-    for month in splitted.keys():
-        histogram(count_categories(filter_month(splitted[month], month)), sort=True)
+    splitted_months = split_months(transactions)
+    for month in splitted_months.keys():
+        histogram(count_categories(filter_month(splitted_months[month], month)), sort=True)
         plt.savefig(month_name(month) + ".png")
 
     # Plot the total amount of money for every month
-    cost_per_month = dict.fromkeys(splitted.keys())
-    for month in splitted.keys():
-        total = sum([x[2] for x in splitted[month]])
+    cost_per_month = dict.fromkeys(splitted_months.keys())
+    for month in splitted_months.keys():
+        total = sum([x[2] for x in splitted_months[month]])
         cost_per_month[month] = total
 
-    histogram(cost_per_month)
+    histogram(cost_per_month, sort="x")
     plt.savefig("months.png")
 
 
