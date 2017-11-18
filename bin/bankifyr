@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+import bankifyr.statistics
+import bankifyr.classifier
+
 import argparse
 
 import daiquiri
@@ -25,9 +28,13 @@ def setup_verbosity_flags(parser):
 def make_base_parser():
     parser = argparse.ArgumentParser(description="")
     parser.add_argument('--accuracy-thresh', '-a',
+                        type=float,
                         help="prediction accuracy before nagging the user",
                         default=DEFAULT_ACC_THRESH)
-    parser.add_argument('csv_data', help="boo")
+    parser.add_argument('--training-file', '-t',
+                        help="batch pre-train using this file",
+                        default=None)
+    parser.add_argument('csv_data', help="Data file to classify")
     setup_verbosity_flags(parser)
     return parser
 
@@ -37,3 +44,25 @@ if __name__ == '__main__':
     args = parser.parse_args()
     daiquiri.setup()
     set_log_level_from_args(args, log)
+
+    ## Train the classifier beforehand
+    if args.training_file:
+        log.info("Training classifier using supplied file %s", args.training_file)
+        classifier = bankifyr.classifier.Classifier(
+            bankifyr.statistics.read_rows(args.training_file, labelled=True))
+        log.info("Training done, starting interactive classification!")
+    else:
+        exit(1)
+
+    transaction_data = bankifyr.statistics.read_rows(args.csv_data, labelled=False)
+
+    ### Classify (semi-interactively) here!
+    classified_data = [(t, d, a, c) for ((t, d, a), c) in
+                       classifier.classify(transaction_data, args.accuracy_thresh)]
+
+    ### Generate report
+
+    log.info("Generating graphs...")
+    bankifyr.statistics.plot_everything(classified_data)
+    for entry in sorted(classified_data, key=lambda s: s[-1]):
+        print(entry)

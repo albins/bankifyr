@@ -30,17 +30,25 @@ def count_categories(rows):
     return categories
 
 
-def read_rows(filename):
+def read_rows(filename, labelled):
     with open(filename) as csvfile:
         dialect = csv.Sniffer().sniff(csvfile.read(DEFAULT_SNIFF))
         csvfile.seek(0)
-        csv_reader = csv.reader(csvfile, delimiter = "\t")
+        log.info("Detected CSV dialect %s", dialect.__class__.__name__)
+        csv_reader = csv.reader(csvfile, delimiter = "\t"
+        )
         for row in csv_reader:
+            if labelled and len(row) != 4:
+                log.warning("Skipping invalid data row %s", str(row))
+                continue
+
             date = dateparser.parse(row[1])
             amount = to_number(row[2])
-            yield (row[0], date, amount, row[3])
+            if labelled:
+                yield ((row[0], date, amount), row[3])
+            else:
+                yield (row[0], date, amount)
 
-            
 def to_number(s):
     return float(s.replace(" ", "").replace(",", "."))
 
@@ -48,7 +56,6 @@ def to_number(s):
 def histogram(data, sort=None):
     keys = list(data.keys())
     values = [-v for v in data.values()]
-        
     if sort == "y":
         sorted_values, sorted_keys = zip(*sorted(zip(values, keys)))
     elif sort == "x":
@@ -63,11 +70,12 @@ def histogram(data, sort=None):
 
 def split_months(rows):
     months = defaultdict(list)
-    
+
     for row in rows:
         months[row[1].month].append(row)
 
     return months
+
 
 def split_weekday(rows):
     weekdays = defaultdict(list)
@@ -104,14 +112,14 @@ def month_name(n):
     elif n is 12:
        return "December"
 
-        
+
 def filter_month(rows, month):
     result = []
     for row in rows:
         if row[1].month == month:
             result.append(row)
     return result
-            
+
 
 def filter_weekday(rows, day):
     result = []
@@ -150,9 +158,3 @@ def plot_everything(transactions):
 
     histogram(cost_per_month, sort="x")
     plt.savefig("months.png")
-
-
-if __name__ == '__main__':
-    filename = sys.argv[1]
-    transactions = read_rows(filename)
-    plot_everything(list(transactions))
